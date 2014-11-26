@@ -1,7 +1,11 @@
 Binary-Tree-Heap
 ================
 
-C++ implementation of a heap and heap sort through use of a binary tree structure.
+C++ implementation of a heap and heap sort through use of a binary tree structure via Max_Heap Implementation.
+
+
+DISCLAIMER: Project is still ongoing, and there are still a few problems.
+
 
 Problems:
 
