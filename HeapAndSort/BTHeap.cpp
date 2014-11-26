@@ -151,14 +151,7 @@ void BTHeap::remove(Node * n) //remove the parameter?
 			cout << "\n The tree is empty now \n";
 		}
 	}
-	//one right child, no left child
-	if ((n->right != NULL) && (n->left == NULL))
-	{
-		if (n->data > n->parent->data)
-			n->parent->right = n->right;
-		else
-			n->parent->left = n->right;
-	}
+	//one right child, no left child - impossible case (will never happen)
 	//one left child, no right child
 	if ((n->right == NULL) && (n->left != NULL))
 	{
