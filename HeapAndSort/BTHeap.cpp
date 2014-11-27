@@ -33,10 +33,6 @@ void BTHeap::perculateUp(Node *p, Node *n)
 	}
 	if(p->parent != NULL)
 		perculateUp(p->parent, p);
-	//else
-	//{
-	//	root = p;
-	//}
 }
 
 Node* BTHeap::perculateDown(Node* t)
@@ -44,7 +40,7 @@ Node* BTHeap::perculateDown(Node* t)
 	if(t->left != NULL)
 		perculateDown(t->left);
 	else
-		return t->left;
+		return t;
 }
 
 void BTHeap::insert(Node*r, Node *n)
@@ -61,7 +57,7 @@ void BTHeap::insert(Node*r, Node *n)
 				temp = r->data;
 				r->data = n->data;
 				n->data = temp;
-				root = r;
+				//root = r;
 			}
 		}
 		else if(r->right == NULL) //RIGHT IS NULL
@@ -74,7 +70,7 @@ void BTHeap::insert(Node*r, Node *n)
 				temp = r->data;
 				r->data = n->data;
 				n->data = temp;
-				root = r;
+				//root = r;
 			}
 		}
 		else //LEFT AND RIGHT NOT NULL
@@ -98,23 +94,53 @@ void BTHeap::insert(Node*r, Node *n)
 		}
 		else //LEFT AND RIGHT NOT NULL
 		{
-			if(r->parent->right != r)
-			{//left sub-branch case
-				insert(r->parent->right, n);
-			}
-			else if(r->parent->right == r)
+			//if(r->parent->right != r)
+			//{//left sub-branch case
+			//	insert(r->parent->right, n);
+			//}
+			//else if(r->parent->right == r)
+			//{//right sub-branch case -- maybe it's farthest right
+			//	if(r->parent->parent->right == r->parent) //right most case
+			//	{//right most case
+			//		Node *traverser;
+			//		traverser = root;
+			//		Node *leftMostNode = perculateDown(traverser);
+			//		insert(leftMostNode, n);
+			//	}
+			//	else
+			//	{
+			//		insert(r->parent->parent->right->left, n);
+			//	}
+			//}
+
+
+			if(r->parent->right == r)
 			{//right sub-branch case -- maybe it's farthest right
-				if(r->parent->parent->right == r->parent) //right most case
-				{//right most case
+				if(r->parent->parent != NULL)
+				{
+					if(r->parent->parent->right == r->parent) //right most case
+					{//right most case
+						Node *traverser;
+						traverser = root;
+						Node *leftMostNode = perculateDown(traverser);
+						insert(leftMostNode, n);
+					}
+					else
+					{
+						insert(r->parent->parent->right->left, n);
+					}
+				}
+				else if(r->parent->parent == NULL)
+				{
 					Node *traverser;
 					traverser = root;
 					Node *leftMostNode = perculateDown(traverser);
 					insert(leftMostNode, n);
 				}
-				else
-				{
-					insert(r->parent->parent->right->left, n);
-				}
+			}
+			else if(r->parent->right != r)
+			{//left sub-branch case
+				insert(r->parent->right, n);
 			}
 		}
 	}
