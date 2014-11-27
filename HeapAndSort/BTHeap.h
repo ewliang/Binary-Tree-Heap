@@ -13,10 +13,11 @@ class BTHeap
 	Node * root;
 	BTHeap(Node*);
 	bool empty();
+	void perculateUp(Node* p, Node* n);
+	Node* perculateDown(Node* t);
 	void insert(Node* r, Node* n);
 	void retrieve();
 	void remove(Node * n);
-	void inorder(Node *r);
 	void HeapSort();
 	bool search(Node *r, int key);
 };

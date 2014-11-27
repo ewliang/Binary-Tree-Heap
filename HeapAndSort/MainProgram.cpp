@@ -22,18 +22,29 @@ int main()
 	Node *n7 = new Node(6);
 	Node *n8 = new Node(4);
 	Node *n9 = new Node(2);
+	Node *test = new Node(1000); //Tests for Perculate All the Way Up
 
 	BTHeap heapTree(n1);
-
+	heapTree.retrieve(); //1
 	//HEAP NODE INSERTION
 	heapTree.insert(heapTree.root, n2);
+	heapTree.retrieve(); //3
 	heapTree.insert(heapTree.root, n3);
+	heapTree.retrieve(); //5
 	heapTree.insert(heapTree.root, n4);
+	heapTree.retrieve(); //7
 	heapTree.insert(heapTree.root, n5);
+	heapTree.retrieve(); //9
 	heapTree.insert(heapTree.root, n6);
+	heapTree.retrieve(); //9
 	heapTree.insert(heapTree.root, n7);
+	heapTree.retrieve(); //9
 	heapTree.insert(heapTree.root, n8);
+	heapTree.retrieve(); //9
 	heapTree.insert(heapTree.root, n9);
+	heapTree.retrieve(); //9
+	heapTree.insert(heapTree.root, test); //Tests for Perculate Up
+	heapTree.retrieve(); //1000
 
 	//EMPTY CHECK
 	if(heapTree.empty())

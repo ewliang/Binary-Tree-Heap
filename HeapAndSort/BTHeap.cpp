@@ -14,6 +14,7 @@ BTHeap::BTHeap(Node* r)
 {	
 	root = r;
 }
+
 bool BTHeap::empty()
 {
 	if (root == '\0')
@@ -21,6 +22,31 @@ bool BTHeap::empty()
 	else
 		return false;
 }
+
+void BTHeap::perculateUp(Node *p, Node *n)
+{
+	if(n->data > p->data)
+	{
+		int temp = p->data;
+		p->data = n->data;
+		n->data = temp;
+	}
+	if(p->parent != NULL)
+		perculateUp(p->parent, p);
+	//else
+	//{
+	//	root = p;
+	//}
+}
+
+Node* BTHeap::perculateDown(Node* t)
+{
+	if(t->left != NULL)
+		perculateDown(t->left);
+	else
+		return t->left;
+}
+
 void BTHeap::insert(Node*r, Node *n)
 {	
 	if(r->parent == NULL) //ROOT
@@ -30,11 +56,11 @@ void BTHeap::insert(Node*r, Node *n)
 			n->parent = r;
 			r->left = n;
 			if(n->data > r->data) //CHILD > PARENT?
-			{
-				Node* temp;
-				temp = r;
-				r = n;
-				n = temp;
+			{ //but doesn't this way of things mean the nodes swap location but parent pointer still points to old location??? :X PROBLEM!
+				int temp;
+				temp = r->data;
+				r->data = n->data;
+				n->data = temp;
 				root = r;
 			}
 		}
@@ -44,10 +70,10 @@ void BTHeap::insert(Node*r, Node *n)
 			r->right = n;
 			if(n->data > r->data) //CHILD > PARENT?
 			{
-				Node* temp;
-				temp = r;
-				r = n;
-				n = temp;
+				int temp;
+				temp = r->data;
+				r->data = n->data;
+				n->data = temp;
 				root = r;
 			}
 		}
@@ -62,54 +88,32 @@ void BTHeap::insert(Node*r, Node *n)
 		{
 			n->parent = r;
 			r->left = n;
-			if(n->data > r->data) //CHILD > PARENT?
-			{
-				Node* temp;
-				temp = r;
-				r = n;
-				n = temp;
-				root = r;
-			}
+			perculateUp(r, n);
 		}
 		else if(r->right == NULL) //RIGHT IS NULL
 		{
 			n->parent = r;
 			r->right = n;
-			if(n->data > r->data) //CHILD > PARENT?
-			{
-				Node* temp;
-				temp = r;
-				r = n;
-				n = temp;
-				root = r;
-			}
+			perculateUp(r, n);
 		}
 		else //LEFT AND RIGHT NOT NULL
 		{
-			
-			if(r->parent->right != r) //WHILE NOT RIGHT MOST NODE
-			{
-				if(r->parent->right != NULL)
-				{
-					insert(r->parent->right, n);
-				}
+			if(r->parent->right != r)
+			{//left sub-branch case
+				insert(r->parent->right, n);
 			}
-			else //RIGHT MOST NODE
-			{
-				//at right most node on the current level, go to next level first node
-				Node *traverser;
-				traverser = root;
-				while(traverser->left != NULL)
+			else if(r->parent->right == r)
+			{//right sub-branch case -- maybe it's farthest right
+				if(r->parent->parent->right == r->parent) //right most case
+				{//right most case
+					Node *traverser;
+					traverser = root;
+					Node *leftMostNode = perculateDown(traverser);
+					insert(leftMostNode, n);
+				}
+				else
 				{
-					if(traverser->left == NULL)
-					{
-						insert(traverser, n);
-						break;
-					}
-					else
-					{
-						traverser = traverser->left; //keep going down while left is not null
-					}
+					insert(r->parent->parent->right->left, n);
 				}
 			}
 		}
@@ -172,14 +176,6 @@ void BTHeap::remove(Node * n) //remove the parameter?
 			xsucc->parent->left = xsucc->right;
 		else
 			xsucc->parent->left = '\0';
-	}
-}
-
-void BTHeap::inorder(Node *r)
-{	if (r != '\0')
-	{	inorder(r->left);
-		cout << r->data<<" ";
-		inorder(r->right);
 	}
 }
 
