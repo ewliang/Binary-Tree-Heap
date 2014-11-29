@@ -9,15 +9,18 @@
 #include "Node.h"
 #include <vector>
 class BTHeap
-{public:
+{
+public:
 	Node * root;
+	Node * last;
 	BTHeap(Node*);
 	bool empty();
-	void perculateUp(Node* p, Node* n);
-	Node* perculateDown(Node* t);
+	void perculateUp(Node *p, Node *n);
+	Node* levelDown(Node *n);
+	void perculateDown(Node *p);
 	void insert(Node* r, Node* n);
 	void retrieve();
-	void remove(Node * n);
+	Node* levelDownRight(Node *n);
+	void remove();
 	void HeapSort();
-	bool search(Node *r, int key);
 };

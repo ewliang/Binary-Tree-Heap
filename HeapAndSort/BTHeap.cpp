@@ -14,7 +14,6 @@ BTHeap::BTHeap(Node* r)
 {	
 	root = r;
 }
-
 bool BTHeap::empty()
 {
 	if (root == '\0')
@@ -22,29 +21,9 @@ bool BTHeap::empty()
 	else
 		return false;
 }
-
-void BTHeap::perculateUp(Node *p, Node *n)
-{
-	if(n->data > p->data)
-	{
-		int temp = p->data;
-		p->data = n->data;
-		n->data = temp;
-	}
-	if(p->parent != NULL)
-		perculateUp(p->parent, p);
-}
-
-Node* BTHeap::perculateDown(Node* t)
-{
-	if(t->left != NULL)
-		perculateDown(t->left);
-	else
-		return t;
-}
-
 void BTHeap::insert(Node*r, Node *n)
 {	
+	last = n;
 	if(r->parent == NULL) //ROOT
 	{
 		if(r->left == NULL) //LEFT IS NULL
@@ -57,7 +36,6 @@ void BTHeap::insert(Node*r, Node *n)
 				temp = r->data;
 				r->data = n->data;
 				n->data = temp;
-				//root = r;
 			}
 		}
 		else if(r->right == NULL) //RIGHT IS NULL
@@ -70,7 +48,6 @@ void BTHeap::insert(Node*r, Node *n)
 				temp = r->data;
 				r->data = n->data;
 				n->data = temp;
-				//root = r;
 			}
 		}
 		else //LEFT AND RIGHT NOT NULL
@@ -94,26 +71,6 @@ void BTHeap::insert(Node*r, Node *n)
 		}
 		else //LEFT AND RIGHT NOT NULL
 		{
-			//if(r->parent->right != r)
-			//{//left sub-branch case
-			//	insert(r->parent->right, n);
-			//}
-			//else if(r->parent->right == r)
-			//{//right sub-branch case -- maybe it's farthest right
-			//	if(r->parent->parent->right == r->parent) //right most case
-			//	{//right most case
-			//		Node *traverser;
-			//		traverser = root;
-			//		Node *leftMostNode = perculateDown(traverser);
-			//		insert(leftMostNode, n);
-			//	}
-			//	else
-			//	{
-			//		insert(r->parent->parent->right->left, n);
-			//	}
-			//}
-
-
 			if(r->parent->right == r)
 			{//right sub-branch case -- maybe it's farthest right
 				if(r->parent->parent != NULL)
@@ -122,7 +79,7 @@ void BTHeap::insert(Node*r, Node *n)
 					{//right most case
 						Node *traverser;
 						traverser = root;
-						Node *leftMostNode = perculateDown(traverser);
+						Node *leftMostNode = levelDown(traverser);
 						insert(leftMostNode, n);
 					}
 					else
@@ -134,7 +91,7 @@ void BTHeap::insert(Node*r, Node *n)
 				{
 					Node *traverser;
 					traverser = root;
-					Node *leftMostNode = perculateDown(traverser);
+					Node *leftMostNode = levelDown(traverser);
 					insert(leftMostNode, n);
 				}
 			}
@@ -146,62 +103,181 @@ void BTHeap::insert(Node*r, Node *n)
 	}
 }
 
+void BTHeap::perculateUp(Node *p, Node *n)
+{
+	if(n->data > p->data)
+	{
+		int temp = p->data;
+		p->data = n->data;
+		n->data = temp;
+	}
+	if(p->parent != NULL)
+		perculateUp(p->parent, p);
+}
+
+Node* BTHeap::levelDown(Node *t)
+{
+	if(t->left != NULL)
+		levelDown(t->left);
+	else
+		return t;
+}
+
 void BTHeap::retrieve()
 {
 	if(this->empty()) //Tree is Empty Safeguard
 	{
-		cout << "Error, Tree is Empty! Please Insert Items into Tree First." << endl;
+		cout << "Tree is Empty!" << endl;
 	}
 	else
 	{
-		if (root == '\0')
-			cout << "Root is empty!" << endl;
-		else
-		{
-			cout << root->data << " " << endl;
-		}
+		cout << root->data << " " << endl;
 	}
 }
 
-void BTHeap::remove(Node * n) //remove the parameter?
+Node* BTHeap::levelDownRight(Node *t)
 {
-	Node * xsucc;
-	if ((n->left == NULL) && (n->right == NULL))
+	if(t->right != NULL)
+		levelDown(t->right);
+	else
+		return t;
+}
+
+void BTHeap::remove()
+{
+	if(root != last)
 	{
-		if (n->parent != NULL)//leaf
+		Node *tempLast;
+		int temp;
+		if(root->left == last) //root + left child left
 		{
-			if (n->data > n->parent->data)
-				n->parent->right = NULL;
+			tempLast = root;
+			temp = root->data;
+			root->data = last->data;
+			last->data = temp;
+			last = NULL;
+			last = tempLast;
+		}
+		else if(root->right == last)
+		{
+			tempLast = root->left;
+			temp = last->data;
+			last->data = root->data;
+			root->data = temp;
+			last = NULL;
+			last = tempLast;
+			if(root->left->data > root->data)
+			{
+				temp = root->left->data;
+				root->left->data = root->data;
+				root->data = temp;
+			}
+		}
+		else
+		{
+			temp = root->data;
+			root->data = last->data;
+			last->data = temp;
+			tempLast = last;
+			//REASSIGN LAST
+			
+			//check which child (L or R)
+			//then determine whether you need to go up and outer
+			//assume small tree
+			//then large tree
+
+			if(last->parent->left == last) //L child
+			{//need to travel out
+				if(last->parent->parent->left != last->parent)
+				{//no need to travel super out, just stay within 
+					tempLast = last->parent->parent->left->right;
+				}
+				else
+				{//must travel out as long as not left most half of tree
+					if(last->parent->parent != root)
+					{
+						if(last->parent->parent->parent->left != last->parent->parent)
+						{
+							tempLast = last->parent->parent->parent->left->right->right;
+						}
+						else
+						{//must go up one level's last item as tempLast
+							//travel down right
+							Node *rLast = levelDownRight(root);
+							tempLast = rLast;
+						}
+					}
+					else
+					{
+						tempLast = last->parent->parent->left->right;
+					}
+				}
+			}
+			else //R child
+			{//no need to jump out
+				tempLast = last->parent->left;
+			}
+
+			//END
+			last = NULL;
+			last = tempLast;
+
+			perculateDown(root);
+		}
+	}
+	else //Root Remains
+	{
+		root = NULL;
+		last = NULL;
+	}
+}
+
+void BTHeap::perculateDown(Node *p)
+{
+	int temp;
+	if(p->left == NULL) //LEFT NULL -- p is last node AND no right node
+	{
+		//nothing happens
+	}
+	else //LEFT NOT NULL
+	{
+		if(p->right != NULL) //RIGHT NOT NULL
+		{
+			//compare left to right to find out which is bigger
+			if(p->left->data > p->right->data)
+			{//LEFT BIGGER THAN RIGHT
+				//LEFT vs PARENT
+				if(p->left->data > p->data)
+				{//LEFT > PARENT -> SWAP!
+					temp = p->data;
+					p->data = p->left->data;
+					p->left->data = temp;
+					perculateDown(p->left);
+				}
+			}
 			else
-				n->parent->left = NULL;
+			{//RIGHT BIGGER THAN LEFT
+				//RIGHT vs PARENT
+				if(p->right->data > p->data)
+				{//RIGHT > PARENT -> SWAP!
+					temp = p->data;
+					p->data = p->right->data;
+					p->right->data = temp;
+					perculateDown(p->right);
+				}
+			}
 		}
-		else //root, no children
+		else //RIGHT NULL
 		{
-			root = NULL;
-			cout << "\n The tree is empty now \n";
+			//left compare to parent -- because outermost checked for left's existence, in here left is guaranteed to exist
+			if(p->left->data > p->data)
+			{//SWAP
+				temp = p->data;
+				p->data = p->left->data;
+				p->left->data = temp;
+				perculateDown(p->left);
+			}
 		}
-	}
-	//one right child, no left child - impossible case (will never happen)
-	//one left child, no right child
-	if ((n->right == NULL) && (n->left != NULL))
-	{
-		if (n->data > n->parent->data)
-			n->parent->right = n->left;
-		else
-			n->parent->left = n->left;
-	}
-	if ((n->right != NULL) && (n->left != NULL))//two childern, find the successor, replace, and remove
-	{
-		xsucc = n->right;
-		while (xsucc->left != NULL)
-		{
-			xsucc = xsucc->left;
-		}
-		n->data = xsucc->data;
-		if (xsucc->right != NULL)
-			xsucc->parent->left = xsucc->right;
-		else
-			xsucc->parent->left = '\0';
 	}
 }
 
@@ -210,22 +286,6 @@ void BTHeap::HeapSort()
 	while(!empty())
 	{
 		retrieve();
-		//remove();
-	}
-}
-
-bool BTHeap::search(Node *root, int key)
-{	if (root == '\0')
-		return false;
-	else
-	{  if (root->data == key)
-			return true;
-		else
-		{	if (root->data > key)
-				search(root->left, key);
-			else
-				search(root->right, key);
-		}
-
+		remove();
 	}
 }
